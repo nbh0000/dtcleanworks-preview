@@ -539,6 +539,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .plan-rows dt { color: var(--text-3); }
 .is-featured .plan-rows dt { color: var(--on-dark-2); }
 .plan-rows dd { text-align: right; font-weight: 600; }
+/* 항목은 항상 한 줄로 */
+.plan-rows dt, .plan-rows dd, .plan-tagline, .plan-freq { white-space: nowrap; }
 .plan-rows .is-off dd { font-weight: 400; color: var(--text-3); }
 .plan-extra { margin-top: 16px; padding: 14px 14px 16px; border-radius: 8px; background: var(--blue-soft); }
 .plan-extra-title { font-size: 0.8438rem; font-weight: 700; color: var(--blue); letter-spacing: 0.02em; }
@@ -564,6 +566,28 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .deck:not(.is-ready) .deck-arrow { display: none; }
 @media (min-width: 640px) { .deck { --w: 400px; --r: 470px; --theta: 48; --arrow-gap: 34px; } .deck-arrow { width: 48px; height: 48px; } .plan { padding: 32px 28px 28px; } }
 @media (min-width: 1024px) { .deck { --w: 420px; --r: 520px; --theta: 46; --persp: 1900px; } }
+/* 휴대폰: 카드 한 장이 화면에 다 들어오도록 여백과 글자를 조금씩 줄여 높이를 낮춘다 */
+@media (max-width: 639.98px) {
+  .deck { --w: min(82vw, 400px); --arrow-gap: 8px; }
+  .deck-stage { padding: 10px 0 26px; }
+  .plan { padding: 20px 20px 18px; }
+  .plan-name { font-size: 0.9375rem; }
+  .plan-tagline { margin-top: 4px; font-size: 0.9063rem; }
+  .plan-price { margin-top: 10px; }
+  .plan-price strong { font-size: 1.875rem; }
+  .plan-unit, .plan-won { font-size: 0.9688rem; }
+  .plan-freq { margin-top: 4px; font-size: 0.9063rem; }
+  .plan-rows { margin-top: 12px; }
+  .plan-body > .plan-rows > div { padding-block: 6px; }
+  .plan-desc { padding-top: 12px; font-size: 0.875rem; line-height: 1.55; }
+  .plan-desc + .plan-rows { margin-top: 8px; }
+  .plan-extra { margin-top: 10px; padding: 10px 12px 12px; }
+  .plan-extra .plan-rows { gap: 5px; margin-top: 6px; }
+  .plan-extra .plan-rows > div { grid-template-columns: auto 1fr; gap: 8px; font-size: clamp(0.6875rem, 3.25vw, 0.8125rem); }
+  .plan-rows > div { font-size: clamp(0.8125rem, 3.6vw, 0.875rem); }
+  .plan-body > :nth-last-child(2) { margin-bottom: 14px; }
+  .plan-cta { min-height: 46px; }
+}
 
 .plan-notes { margin-top: clamp(28px, 4vw, 48px); padding-top: 24px; border-top: 1px solid var(--line-strong); display: grid; gap: 16px; }
 .plan-notes h3 { font-size: 1.0625rem; font-weight: 700; letter-spacing: -0.02em; }
