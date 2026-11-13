@@ -464,8 +464,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 /* ── 요금제 ───────────────────────────────────────── */
 /* 카드를 한자리에 겹쳐 두고, 고른 카드만 앞에 펼친다. 뒤 카드는 이름·가격만 보인다 */
 /* 원통: --r 반지름, --theta 옆 카드가 서 있는 각도. 앞 카드는 제 크기 그대로 보인다 */
-.deck { --w: min(80vw, 400px); --r: 380px; --theta: 50; position: relative; margin-top: clamp(20px, 3vw, 36px); }
-.deck-stage { perspective: 1500px; overflow: hidden; padding: 14px 0 34px; }
+.deck { --w: min(80vw, 400px); --r: 380px; --theta: 50; --persp: 1500px; position: relative; overflow-x: clip; margin-top: clamp(20px, 3vw, 36px); }
+.deck-stage { overflow: hidden; padding: 14px 0 34px; }
 .plans { display: grid; justify-content: center; align-items: stretch; }
 .plan {
   grid-area: 1 / 1; width: var(--w);
@@ -475,24 +475,20 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   background: var(--card); box-shadow: var(--shadow);
 }
 .plan.is-featured { background: var(--ink); border-color: var(--ink); border-top: 3px solid var(--accent); color: var(--on-dark); }
-.deck.is-ready .plans {
-  --drag: 0deg;
-  transform-style: preserve-3d;
-  transform: translateZ(calc(var(--r) * -1)) rotateY(var(--drag));
-  touch-action: pan-y; user-select: none; -webkit-user-select: none;
-}
+/* 브라우저마다 3D 겹침 처리가 달라서(사파리), 카드마다 원근·각도를 직접 계산하고 앞뒤 순서는 z-index 로 정한다 */
+.deck.is-ready .plans { --drag: 0deg; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
 .deck.is-ready .plan {
   --ang: 0deg;
-  transform: rotateY(var(--ang)) translateZ(var(--r));
+  position: relative; z-index: 2;
+  transform: perspective(var(--persp)) translateZ(calc(var(--r) * -1)) rotateY(calc(var(--ang) + var(--drag))) translateZ(var(--r));
   backface-visibility: hidden; -webkit-backface-visibility: hidden;
   cursor: pointer;
 }
-.deck.is-live .plans { transition: transform 0.75s cubic-bezier(0.22, 0.72, 0.18, 1); }
-.deck.is-live .plan { transition: transform 0.75s cubic-bezier(0.22, 0.72, 0.18, 1), filter 0.4s; }
-.deck.is-live .plans.is-drag { transition: none; }
-.deck.is-ready .plan.is-active { cursor: default; }
-.deck.is-ready .plan:not(.is-active) { filter: brightness(0.93); }
-@media (prefers-reduced-motion: reduce) { .deck.is-live .plans, .deck.is-live .plan { transition: none; } }
+.deck.is-ready .plan.is-active { z-index: 3; cursor: default; }
+.deck.is-ready .plan.is-back { z-index: 1; opacity: 0; pointer-events: none; }
+.deck.is-live .plan { transition: transform 0.75s cubic-bezier(0.22, 0.72, 0.18, 1), opacity 0.3s; }
+.deck.is-live .plans.is-drag .plan { transition: opacity 0.3s; }
+@media (prefers-reduced-motion: reduce) { .deck.is-live .plan { transition: none; } }
 /* 스크립트가 없으면 카드를 세로로 그냥 나열한다 */
 .deck:not(.is-ready) .plan { grid-area: auto; margin-bottom: 12px; }
 .deck:not(.is-ready) .deck-tabs, .deck:not(.is-ready) .deck-arrow { display: none; }
@@ -567,7 +563,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 @media (hover: hover) and (pointer: fine) { .deck-arrow:hover { background: var(--accent); } }
 .deck:not(.is-ready) .deck-arrow { display: none; }
 @media (min-width: 640px) { .deck { --w: 400px; --r: 470px; --theta: 48; --arrow-gap: 34px; } .deck-arrow { width: 48px; height: 48px; } .plan { padding: 32px 28px 28px; } }
-@media (min-width: 1024px) { .deck { --w: 420px; --r: 520px; --theta: 46; } .deck-stage { perspective: 1900px; } }
+@media (min-width: 1024px) { .deck { --w: 420px; --r: 520px; --theta: 46; --persp: 1900px; } }
 
 .plan-notes { margin-top: clamp(28px, 4vw, 48px); padding-top: 24px; border-top: 1px solid var(--line-strong); display: grid; gap: 16px; }
 .plan-notes h3 { font-size: 1.0625rem; font-weight: 700; letter-spacing: -0.02em; }
@@ -789,7 +785,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .steps li:hover .step-no { background: var(--accent); border-color: var(--accent); color: var(--ink); }
   .trial-photo img { transition: transform 1.2s var(--ease-out); }
   .trial-photo:hover img, .trial-photo.rv-wipe.is-in:hover img { transform: scale(1.03); }
-  .deck.is-ready .plan:not(.is-active):hover { filter: none; }
 }
 
 /* ── 떠 있는 상담 버튼 (태블릿·PC, 첫 화면을 지나면 나타난다) ── */

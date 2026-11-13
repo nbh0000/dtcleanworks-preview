@@ -120,6 +120,7 @@
         angles[k] = a;
         s.style.setProperty("--ang", a + "deg");
         s.classList.toggle("is-active", o === 0);
+        s.classList.toggle("is-back", Math.abs(o) > 1);
         s.setAttribute("aria-hidden", String(o !== 0));
         s.querySelectorAll("a").forEach((el) => { el.tabIndex = o === 0 ? 0 : -1; });
       });
