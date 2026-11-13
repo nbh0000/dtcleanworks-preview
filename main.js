@@ -80,9 +80,9 @@
       });
     }, { threshold: 0.01 });
     const mark = (sel, cls) => $$(sel).forEach((el) => { el.classList.add(cls); rvIO.observe(el); });
-    mark(".section-head, .trial-copy > *, .plan-notes", "rv");
-    mark(".fit-list, .plans, .faq-list, .contact-links", "rv-group");
-    mark(".svc, .trial-photo", "rv-wipe");
+    mark(".section-head, .deck, .plan-notes", "rv");
+    mark(".fit-list, .faq-list, .contact-links", "rv-group");
+    mark(".svc", "rv-wipe");
     mark(".steps", "rv-steps");
     // 인쇄할 때는 전부 보이게
     addEventListener("beforeprint", () => $$(".rv, .rv-group, .rv-wipe, .rv-steps").forEach((el) => el.classList.add("is-in")));
@@ -98,36 +98,53 @@
   }, { rootMargin: "-45% 0px -50% 0px" });
   links.forEach((a) => { const s = $(a.getAttribute("href")); s && navIO.observe(s); });
 
-  /* 요금제 캐러셀 (모바일·태블릿): 스와이프 진행 표시 */
-  const scroller = $("[data-carousel]");
-  const slides = $$("[data-slide]");
-  const dots = $$("[data-dot]");
-  const setActive = (i) => dots.forEach((d, k) => d.setAttribute("aria-current", String(k === i)));
-  setActive(0);
-  const visible = new Set();
-  const slideIO = new IntersectionObserver((entries) => {
-    entries.forEach((e) => (e.isIntersecting ? visible.add(e.target) : visible.delete(e.target)));
-    if (visible.size) setActive(Math.min(...[...visible].map((el) => slides.indexOf(el))));
-    fit();
-  }, { root: scroller, threshold: 0.6 });
-  // 보이는 카드 높이에 맞춰 영역 높이를 줄인다 (넘기는 화면에서만)
-  const wide = matchMedia("(min-width: 1200px)");
-  const fit = () => {
-    if (wide.matches || !visible.size) { scroller.style.height = ""; scroller.classList.remove("is-fit"); return; }
-    const cs = getComputedStyle(slides[0].parentElement);
-    const h = Math.max(...[...visible].map((el) => el.offsetHeight)) + parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
-    scroller.classList.add("is-fit");
-    scroller.style.height = Math.ceil(h) + "px";
-  };
-  wide.addEventListener("change", fit);
-  if ("ResizeObserver" in window) { const ro = new ResizeObserver(fit); slides.forEach((s) => ro.observe(s)); }
-  slides.forEach((s) => slideIO.observe(s));
-  dots.forEach((d, i) =>
-    d.addEventListener("click", () => {
-      const pad = parseFloat(getComputedStyle(scroller).scrollPaddingInlineStart) || 0;
-      scroller.scrollTo({ left: slides[i].offsetLeft - pad, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
-    })
-  );
+  /* 요금제 카드 묶음: 겹쳐 둔 카드를 좌우로 넘기거나 눌러서 앞으로 꺼낸다 */
+  const deck = $("[data-deck]");
+  if (deck) {
+    const slides = $$("[data-slide]", deck);
+    const dots = $$("[data-dot]", deck);
+    let cur = Math.max(0, slides.findIndex((s) => s.dataset.start === "1"));
+    const go = (i) => {
+      cur = Math.max(0, Math.min(slides.length - 1, i));
+      slides.forEach((s, k) => {
+        const o = k - cur;
+        s.style.setProperty("--o", o);
+        s.style.setProperty("--a", Math.abs(o));
+        s.classList.toggle("is-active", o === 0);
+        s.classList.toggle("is-after", o > 0);
+        s.setAttribute("aria-hidden", String(o !== 0));
+      });
+      dots.forEach((d, k) => d.setAttribute("aria-current", String(k === cur)));
+      $("[data-deck-prev]", deck).disabled = cur === 0;
+      $("[data-deck-next]", deck).disabled = cur === slides.length - 1;
+    };
+    deck.classList.add("is-ready");
+    go(cur);
+    $("[data-deck-prev]", deck).addEventListener("click", () => go(cur - 1));
+    $("[data-deck-next]", deck).addEventListener("click", () => go(cur + 1));
+    dots.forEach((d, i) => d.addEventListener("click", () => go(i)));
+    // 좌우로 넘기기: 가로로 40px 넘게 움직였을 때만 넘긴다 (세로 스크롤은 그대로)
+    const track = $(".plans", deck);
+    let sx = 0, sy = 0, down = false, swiped = false;
+    track.addEventListener("pointerdown", (e) => { down = true; swiped = false; sx = e.clientX; sy = e.clientY; });
+    track.addEventListener("pointerup", (e) => {
+      if (!down) return;
+      down = false;
+      const dx = e.clientX - sx, dy = e.clientY - sy;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.2) { swiped = true; go(cur + (dx < 0 ? 1 : -1)); }
+    });
+    track.addEventListener("pointercancel", () => { down = false; });
+    // 뒤에 있는 카드를 누르면 앞으로 나온다
+    track.addEventListener("click", (e) => {
+      if (swiped) { e.preventDefault(); swiped = false; return; }
+      const s = e.target.closest("[data-slide]");
+      if (s && !s.classList.contains("is-active")) { e.preventDefault(); go(slides.indexOf(s)); }
+    });
+    deck.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft") go(cur - 1);
+      if (e.key === "ArrowRight") go(cur + 1);
+    });
+  }
 
   /* 하단 고정 바: 히어로 버튼·상담 문의 영역·푸터가 보이면 숨김 (같은 버튼이 겹치지 않게) */
   const bar = $("[data-mobile-bar]");
