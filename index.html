@@ -147,22 +147,35 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   content: ""; position: absolute; inset: 0; z-index: -1;
   background-size: cover; background-position: center;
 }
-.tex-floor::before {
-  background-image: linear-gradient(rgb(228 232 238 / 0.82), rgb(228 232 238 / 0.82)), url(assets/img/bg-floor-1600.webp);
+/* 밝은 면이 어두운 면과 맞닿는 쪽은 선으로 끊지 않고 남색이 번지듯 풀리게 한다 */
+.tex-floor::before, .tex-wall::before {
+  background-image: var(--blend-t, linear-gradient(transparent, transparent)), var(--blend-b, linear-gradient(transparent, transparent)), var(--tone), var(--photo);
+  background-size: 100% var(--blend-h, 0px), 100% var(--blend-h, 0px), cover, cover;
+  background-position: left 0 top -1px, left 0 bottom -1px, center, center;
+  background-repeat: no-repeat;
 }
-.tex-wall::before {
-  background-image: linear-gradient(rgb(255 255 255 / 0.88), rgb(255 255 255 / 0.88)), url(assets/img/bg-wall-1600.webp);
-}
+.tex-floor { --tone: linear-gradient(rgb(228 232 238 / 0.82), rgb(228 232 238 / 0.82)); --photo: url(assets/img/bg-floor-1600.webp); }
+.tex-wall { --tone: linear-gradient(rgb(255 255 255 / 0.88), rgb(255 255 255 / 0.88)); --photo: url(assets/img/bg-wall-1600.webp); }
+.blend-top, .blend-bottom, .soft-top, .soft-bottom { --blend-h: clamp(150px, 20vw, 300px); }
+.soft-top { --blend-t: linear-gradient(to bottom, rgb(228 232 238) 0, rgb(228 232 238 / 0.7) 22%, rgb(228 232 238 / 0.32) 52%, rgb(228 232 238 / 0.1) 78%, rgb(228 232 238 / 0)); }
+.soft-bottom { --blend-b: linear-gradient(to top, rgb(228 232 238) 0, rgb(228 232 238 / 0.7) 22%, rgb(228 232 238 / 0.32) 52%, rgb(228 232 238 / 0.1) 78%, rgb(228 232 238 / 0)); }
+.blend-top { --blend-t: linear-gradient(to bottom, rgb(11 19 31) 0, rgb(11 19 31 / 0.84) 9%, rgb(11 19 31 / 0.6) 24%, rgb(11 19 31 / 0.36) 42%, rgb(11 19 31 / 0.17) 62%, rgb(11 19 31 / 0.05) 82%, rgb(11 19 31 / 0)); }
+.blend-bottom { --blend-b: linear-gradient(to top, rgb(11 19 31) 0, rgb(11 19 31 / 0.84) 9%, rgb(11 19 31 / 0.6) 24%, rgb(11 19 31 / 0.36) 42%, rgb(11 19 31 / 0.17) 62%, rgb(11 19 31 / 0.05) 82%, rgb(11 19 31 / 0)); }
+.section.blend-top { padding-top: calc(var(--section-y) + var(--blend-h) * 0.55); }
+.section.blend-bottom { padding-bottom: calc(var(--section-y) + var(--blend-h) * 0.55); }
 .tex-flip::before { transform: scaleX(-1); }
 /* 밤 구간: 진행 과정은 마감 뒤의 매장 위에서 보여 준다 */
 .tex-night { color: var(--on-dark); background: var(--ink); }
 .tex-night::before {
-  background-image: linear-gradient(rgb(11 19 31 / 0.9), rgb(11 19 31 / 0.8)), url(assets/img/bg-night-1600.webp);
+  background-image:
+    linear-gradient(to bottom, rgb(11 19 31), rgb(11 19 31 / 0) 110px),
+    linear-gradient(to top, rgb(11 19 31), rgb(11 19 31 / 0) 110px),
+    linear-gradient(rgb(11 19 31 / 0.9), rgb(11 19 31 / 0.8)), url(assets/img/bg-night-1600.webp);
   background-position: 30% 70%; transform: scaleX(-1);
 }
 .tex-night :focus-visible, .hero :focus-visible, .closing :focus-visible { outline-color: var(--accent); }
 /* 섹션 경계: 회색 면과 흰 면을 번갈아 두고, 사이에 선과 얕은 그림자를 준다 */
-.tex + .tex { border-top: 1px solid rgb(14 24 38 / 0.14); box-shadow: inset 0 14px 18px -18px rgb(14 24 38 / 0.22); }
+/* 섹션 사이는 선으로 나누지 않고 톤이 번지며 이어진다 (.blend-*, .soft-*) */
 
 .photo-empty { background: #dfe4ea; }
 
@@ -320,6 +333,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .hero::after {
   content: ""; position: absolute; inset: 0; z-index: -1;
   background:
+    linear-gradient(to top, rgb(11 19 31), rgb(11 19 31 / 0) 26%),
     linear-gradient(to top, rgb(10 17 28 / 0.9), rgb(10 17 28 / 0.35) 55%, rgb(10 17 28 / 0.5)),
     linear-gradient(90deg, rgb(10 17 28 / 0.6), transparent 70%);
 }
@@ -348,6 +362,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 @media (min-width: 900px) {
   .hero::after {
     background:
+      linear-gradient(to top, rgb(11 19 31), rgb(11 19 31 / 0) 24%),
       linear-gradient(90deg, rgb(10 17 28 / 0.88), rgb(10 17 28 / 0.55) 42%, rgb(10 17 28 / 0.08) 78%),
       linear-gradient(to top, rgb(10 17 28 / 0.6), transparent 40%);
   }
@@ -388,7 +403,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   font-family: "Archivo", sans-serif; font-weight: 900; font-stretch: 125%;
   font-size: clamp(15rem, 36vw, 36rem); line-height: 0.8; letter-spacing: -0.04em;
 }
-.fit::after { right: -0.06em; top: -0.1em; font-size: clamp(9rem, 22vw, 22rem); color: rgb(143 176 242 / 0.13); }
+.fit::after { right: -0.06em; top: calc(var(--blend-h) * 0.55); font-size: clamp(9rem, 22vw, 22rem); color: rgb(143 176 242 / 0.13); }
 @media (min-width: 1024px) { .fit::after { right: auto; left: -0.05em; } }
 .closing::after { right: -0.04em; bottom: -0.08em; color: rgb(143 176 242 / 0.06); }
 .fit-list { display: grid; gap: 14px; margin-top: clamp(32px, 4.5vw, 56px); }
@@ -572,7 +587,11 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .trial-photo { overflow: hidden; border-radius: var(--r-box); aspect-ratio: 3 / 2; background: #dfe4ea; box-shadow: var(--shadow); }
 .trial-photo img, .trial-photo .photo-empty { width: 100%; height: 100%; object-fit: cover; }
 .trial-name { font-weight: 800; letter-spacing: 0.06em; color: var(--blue); font-size: 0.9688rem; margin-bottom: 10px; }
-.trial-facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-block: 28px; padding-block: 18px; border-block: 1px solid var(--line-strong); }
+.trial-price { margin-top: 22px; display: flex; align-items: baseline; gap: 0 6px; }
+.trial-price strong { font-family: "Archivo", sans-serif; font-stretch: 112%; font-size: clamp(2.5rem, 2.1rem + 1.8vw, 3.5rem); font-weight: 700; line-height: 1.05; letter-spacing: -0.035em; font-variant-numeric: tabular-nums; }
+.trial-price .plan-won { font-size: 1.1875rem; margin-left: 0; }
+.trial-facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-block: 22px 28px; padding-block: 18px; border-block: 1px solid var(--line-strong); }
+.trial-facts > :last-child:nth-child(odd) { grid-column: 1 / -1; }
 .trial-facts dt { font-size: 0.875rem; color: var(--text-3); }
 .trial-facts dd { margin-top: 2px; font-size: 1.125rem; font-weight: 700; letter-spacing: -0.02em; }
 .trial-copy .btn { width: 100%; }
@@ -615,6 +634,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .closing::before {
   content: ""; position: absolute; inset: 0; z-index: -1;
   background:
+    linear-gradient(to bottom, rgb(11 19 31), rgb(11 19 31 / 0) 110px),
     linear-gradient(rgb(10 17 28 / 0.72), rgb(10 17 28 / 0.9)),
     url(assets/img/bg-night-1600.webp) center / cover;
 }
@@ -691,6 +711,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .trial-copy > .rv:nth-child(3) { transition-delay: 0.12s; }
   .trial-copy > .rv:nth-child(4) { transition-delay: 0.18s; }
   .trial-copy > .rv:nth-child(5) { transition-delay: 0.24s; }
+  .trial-copy > .rv:nth-child(6) { transition-delay: 0.3s; }
 
   /* 이런 점주님께: 체크 표시가 칸보다 살짝 늦게 찍힌다 */
   .fit-list.rv-group .fit-mark { transform: scale(0.5); opacity: 0; transition: transform 0.5s var(--ease-out) 0.25s, opacity 0.3s 0.25s, background-color 0.2s; }
@@ -701,18 +722,18 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
   /* 서비스·체험 사진: 가림막이 걷히듯 열린다 */
   /* (틀 자체를 가리면 화면 진입 감지가 안 되므로 체험 사진은 안쪽 img 를 가린다) */
-  .rv-wipe.svc .svc-photo { clip-path: inset(0 0 100% 0); transition: clip-path 1s var(--ease-out); }
+  .rv-wipe.svc .svc-photo { clip-path: inset(0 0 100% 0); transition: clip-path 0.55s var(--ease-out); }
   .rv-wipe.svc.is-in .svc-photo { clip-path: inset(0); }
   .rv-wipe.svc:not(.is-in) .svc-photo img { transform: scale(1.1); }
   .trial-photo.rv-wipe { transition: background-color 0.6s, box-shadow 0.9s; }
   .trial-photo.rv-wipe:not(.is-in) { background-color: transparent; box-shadow: none; }
-  .trial-photo.rv-wipe img { clip-path: inset(0 100% 0 0); transform: scale(1.1); transition: clip-path 1s var(--ease-out), transform 1.2s var(--ease-out); }
+  .trial-photo.rv-wipe img { clip-path: inset(0 100% 0 0); transform: scale(1.06); transition: clip-path 0.55s var(--ease-out), transform 0.8s var(--ease-out); }
   .trial-photo.rv-wipe.is-in img { clip-path: inset(0); transform: none; }
-  .rv-wipe.svc .svc-body { opacity: 0; transform: translateY(12px); transition: opacity 0.6s var(--ease-out) 0.25s, transform 0.7s var(--ease-out) 0.25s; }
+  .rv-wipe.svc .svc-body { opacity: 0; transform: translateY(12px); transition: opacity 0.45s var(--ease-out) 0.1s, transform 0.5s var(--ease-out) 0.1s; }
   .rv-wipe.svc.is-in .svc-body { opacity: 1; transform: none; }
   @media (min-width: 640px) {
-    .svc.rv-wipe:nth-child(2) .svc-photo, .svc.rv-wipe:nth-child(4) .svc-photo { transition-delay: 0.12s; }
-    .svc.rv-wipe:nth-child(5) .svc-photo { transition-delay: 0.24s; }
+    .svc.rv-wipe:nth-child(2) .svc-photo, .svc.rv-wipe:nth-child(4) .svc-photo { transition-delay: 0.06s; }
+    .svc.rv-wipe:nth-child(5) .svc-photo { transition-delay: 0.12s; }
   }
 
   /* 진행 과정: 선이 그어지며 번호가 차례로 켜진다 */
@@ -818,10 +839,10 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 <main id="main">
 
 <section class="hero" id="top" aria-labelledby="hero-title">
-  <img class="hero-photo is-active" src="assets/img/hero-hall-1600.webp" srcset="assets/img/hero-hall-800.webp 800w, assets/img/hero-hall-1600.webp 1600w" sizes="100vw" alt="마감 청소를 마친 밤의 식당 홀" width="1600" height="1067" fetchpriority="high" decoding="async">
-  <img aria-hidden="true" class="hero-photo" src="assets/img/svc-mist-1600.webp" srcset="assets/img/svc-mist-800.webp 800w, assets/img/svc-mist-1600.webp 1600w" sizes="100vw" alt="" width="1600" height="1200" loading="lazy" decoding="async">
-  <img aria-hidden="true" class="hero-photo" src="assets/img/trial-table-1600.webp" srcset="assets/img/trial-table-800.webp 800w, assets/img/trial-table-1600.webp 1600w" sizes="100vw" alt="" width="1600" height="1200" loading="lazy" decoding="async">
-  <img aria-hidden="true" class="hero-haze" src="assets/img/hero-hall-1600.webp" srcset="assets/img/hero-hall-800.webp 800w, assets/img/hero-hall-1600.webp 1600w" sizes="100vw" alt="" width="1600" height="1067" decoding="async">
+  <img class="hero-photo is-active" src="assets/img/hero-hall-1600.webp" srcset="assets/img/hero-hall-800.webp 800w, assets/img/hero-hall-1600.webp 1600w" sizes="100vw" alt="마감 청소를 마친 밤의 식당 홀" width="1600" height="1067" fetchpriority="high">
+  <img aria-hidden="true" class="hero-photo" src="assets/img/svc-mist-1600.webp" srcset="assets/img/svc-mist-800.webp 800w, assets/img/svc-mist-1600.webp 1600w" sizes="100vw" alt="" width="1600" height="1200" fetchpriority="low">
+  <img aria-hidden="true" class="hero-photo" src="assets/img/trial-table-1600.webp" srcset="assets/img/trial-table-800.webp 800w, assets/img/trial-table-1600.webp 1600w" sizes="100vw" alt="" width="1600" height="1200" fetchpriority="low">
+  <img aria-hidden="true" class="hero-haze" src="assets/img/hero-hall-1600.webp" srcset="assets/img/hero-hall-800.webp 800w, assets/img/hero-hall-1600.webp 1600w" sizes="100vw" alt="" width="1600" height="1067">
   <span class="hero-blade" aria-hidden="true"></span>
   <div class="wrap hero-inner">
     <div class="hero-copy">
@@ -843,21 +864,21 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   </div>
 </section>
 
-<section class="section fit tex tex-floor" aria-labelledby="fit-title">
+<section class="section fit tex tex-floor blend-top soft-bottom" aria-labelledby="fit-title">
   <div class="wrap">
-    <div class="section-head is-center"><h2 id="fit-title" class="section-title"><span class="t-light">이런 점주님께</span><br>잘 맞아요</h2></div>
+    <div class="section-head is-center"><h2 id="fit-title" class="section-title"><span class="t-light">이런 점주님께</span><br>잘 맞아요</h2><p class="section-lead">마감 청소에 드는 시간을 줄이고, 영업에 더 집중하고 싶은 점주님을 위한 서비스예요.</p></div>
     <ul class="fit-list" role="list">
       <li><span class="fit-mark"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"/><path d="M17 4a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2"/><path d="M19 11h2m-1 -1v2"/></svg></span><div class="fit-text"><h3>마감 후 청소가 힘든 점주님</h3><p>영업을 마치고 나면 청소까지 할 힘이 남지 않아요.</p></div></li><li><span class="fit-mark"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/><path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0 -3 -3.85"/></svg></span><div class="fit-text"><h3>직원 청소 품질이 들쑥날쑥한 매장</h3><p>누가 마감하느냐에 따라 매장 상태가 달라져요.</p></div></li><li><span class="fit-mark"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M12 12l3 2"/><path d="M12 7v5"/></svg></span><div class="fit-text"><h3>퇴근이 자꾸 늦어지는 점주님</h3><p>청소 때문에 문 닫는 시간이 매일 밀려요.</p></div></li><li><span class="fit-mark"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2"/><path d="M14 8h-2.5a1.5 1.5 0 0 0 0 3h1a1.5 1.5 0 0 1 0 3h-2.5m2 0v1.5m0 -9v1.5"/></svg></span><div class="fit-text"><h3>청소 비용을 미리 알고 싶은 매장</h3><p>매달 얼마가 드는지 정해져 있으면 좋겠어요.</p></div></li>
     </ul>
   </div>
 </section>
 
-<section class="section service tex tex-wall" id="service" aria-labelledby="service-title">
+<section class="section service tex tex-wall soft-top soft-bottom" id="service" aria-labelledby="service-title">
   <div class="wrap">
     <div class="section-head is-center"><h2 id="service-title" class="section-title"><span class="t-light">홀부터 마감 점검까지</span><br>맡겨 주세요</h2><p class="section-lead">요금제에 따라 관리 범위가 달라져요.</p></div>
     <ul class="svc-grid" role="list">
       <li class="svc svc-wide">
-        <div class="svc-photo"><img src="assets/img/svc-hall-1600.webp" srcset="assets/img/svc-hall-800.webp 800w, assets/img/svc-hall-1600.webp 1600w" sizes="(min-width: 1024px) 46vw, 92vw" alt="식당 테이블을 닦는 모습" width="1600" height="1200" loading="lazy" decoding="async"></div>
+        <div class="svc-photo"><img src="assets/img/svc-hall-1600.webp" srcset="assets/img/svc-hall-800.webp 800w, assets/img/svc-hall-1600.webp 1600w" sizes="(min-width: 1024px) 46vw, 92vw" alt="식당 테이블을 닦는 모습" width="1600" height="1200" fetchpriority="low"></div>
         <div class="svc-body">
           <h3>홀 클리닝</h3>
           <p class="svc-desc">테이블·의자·바닥을 청소해요. STANDARD부터는 출입구까지 관리해요.</p>
@@ -865,7 +886,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
         </div>
       </li>
       <li class="svc svc-wide">
-        <div class="svc-photo"><img src="assets/img/svc-restroom-1600.webp" srcset="assets/img/svc-restroom-800.webp 800w, assets/img/svc-restroom-1600.webp 1600w" sizes="(min-width: 1024px) 46vw, 92vw" alt="깨끗하게 관리된 매장 화장실 세면대" width="1600" height="1200" loading="lazy" decoding="async"></div>
+        <div class="svc-photo"><img src="assets/img/svc-restroom-1600.webp" srcset="assets/img/svc-restroom-800.webp 800w, assets/img/svc-restroom-1600.webp 1600w" sizes="(min-width: 1024px) 46vw, 92vw" alt="깨끗하게 관리된 매장 화장실 세면대" width="1600" height="1200" fetchpriority="low"></div>
         <div class="svc-body">
           <h3>화장실 케어</h3>
           <p class="svc-desc">변기·세면대·거울·바닥을 관리해요.</p>
@@ -873,7 +894,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
         </div>
       </li>
       <li class="svc">
-        <div class="svc-photo"><img src="assets/img/svc-environment-1600.webp" srcset="assets/img/svc-environment-800.webp 800w, assets/img/svc-environment-1600.webp 1600w" sizes="(min-width: 1024px) 30vw, (min-width: 640px) 46vw, 40vw" alt="정돈된 매장 출입구와 수거한 쓰레기" width="1600" height="1200" loading="lazy" decoding="async"></div>
+        <div class="svc-photo"><img src="assets/img/svc-environment-1600.webp" srcset="assets/img/svc-environment-800.webp 800w, assets/img/svc-environment-1600.webp 1600w" sizes="(min-width: 1024px) 30vw, (min-width: 640px) 46vw, 40vw" alt="정돈된 매장 출입구와 수거한 쓰레기" width="1600" height="1200" fetchpriority="low"></div>
         <div class="svc-body">
           <h3>매장 환경 관리</h3>
           <p class="svc-desc">쓰레기를 수거하고 주변을 정돈해요.</p>
@@ -881,7 +902,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
         </div>
       </li>
       <li class="svc">
-        <div class="svc-photo"><img src="assets/img/svc-check-1600.webp" srcset="assets/img/svc-check-800.webp 800w, assets/img/svc-check-1600.webp 1600w" sizes="(min-width: 1024px) 30vw, (min-width: 640px) 46vw, 40vw" alt="마감 점검표를 확인하는 모습" width="1600" height="1200" loading="lazy" decoding="async"></div>
+        <div class="svc-photo"><img src="assets/img/svc-check-1600.webp" srcset="assets/img/svc-check-800.webp 800w, assets/img/svc-check-1600.webp 1600w" sizes="(min-width: 1024px) 30vw, (min-width: 640px) 46vw, 40vw" alt="마감 점검표를 확인하는 모습" width="1600" height="1200" fetchpriority="low"></div>
         <div class="svc-body">
           <h3>마감 점검</h3>
           <p class="svc-desc">청소를 마친 뒤 청결 상태를 확인해요.</p>
@@ -889,7 +910,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
         </div>
       </li>
       <li class="svc">
-        <div class="svc-photo"><img src="assets/img/svc-mist-1600.webp" srcset="assets/img/svc-mist-800.webp 800w, assets/img/svc-mist-1600.webp 1600w" sizes="(min-width: 1024px) 30vw, (min-width: 640px) 46vw, 40vw" alt="매장 홀에 미세분무를 하는 모습" width="1600" height="1200" loading="lazy" decoding="async"></div>
+        <div class="svc-photo"><img src="assets/img/svc-mist-1600.webp" srcset="assets/img/svc-mist-800.webp 800w, assets/img/svc-mist-1600.webp 1600w" sizes="(min-width: 1024px) 30vw, (min-width: 640px) 46vw, 40vw" alt="매장 홀에 미세분무를 하는 모습" width="1600" height="1200" fetchpriority="low"></div>
         <div class="svc-body">
           <h3>위생 케어</h3>
           <p class="svc-desc">미세분무 관리를 진행해요.</p>
@@ -900,7 +921,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   </div>
 </section>
 
-<section class="section pricing tex tex-floor tex-flip" id="pricing" aria-labelledby="pricing-title">
+<section class="section pricing tex tex-floor tex-flip soft-top blend-bottom" id="pricing" aria-labelledby="pricing-title">
   <div class="wrap">
     <div class="section-head is-center"><h2 id="pricing-title" class="section-title"><span class="t-light">월 정액 요금제,</span><br>세 가지 중에 고르세요</h2><p class="section-lead">매장 운영 환경과 청소 빈도에 맞춰 고르시면 돼요.</p></div>
   </div>
@@ -965,20 +986,21 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   </div>
 </section>
 
-<section class="section trial tex tex-floor" id="trial" aria-labelledby="trial-title">
+<section class="section trial tex tex-floor blend-top soft-bottom" id="trial" aria-labelledby="trial-title">
   <div class="wrap trial-grid">
-    <div class="trial-photo"><img src="assets/img/trial-table-1600.webp" srcset="assets/img/trial-table-800.webp 800w, assets/img/trial-table-1600.webp 1600w" sizes="(min-width: 900px) 52vw, 92vw" alt="아침 햇살이 드는 깨끗한 식당 테이블" width="1600" height="1067" loading="lazy" decoding="async"></div>
+    <div class="trial-photo"><img src="assets/img/trial-table-1600.webp" srcset="assets/img/trial-table-800.webp 800w, assets/img/trial-table-1600.webp 1600w" sizes="(min-width: 900px) 52vw, 92vw" alt="아침 햇살이 드는 깨끗한 식당 테이블" width="1600" height="1067" fetchpriority="low"></div>
     <div class="trial-copy">
       <p class="trial-name" lang="en">DAILY CARE</p>
       <h2 id="trial-title" class="section-title"><span class="t-light">계약 전에</span><br>먼저 경험해 보세요</h2>
       <p class="section-lead">실제 청소 품질과 관리 방식을 확인한 뒤에 정기 계약을 결정하시면 돼요.</p>
-      <dl class="trial-facts"><div><dt>체험 가격</dt><dd>확인 필요</dd></div><div><dt>체험 범위</dt><dd>확인 필요</dd></div></dl>
+      <p class="trial-price"><strong>39,900</strong><span class="plan-won">원</span></p>
+      <dl class="trial-facts"><div><dt>서비스 형태</dt><dd>1회 방문 청소</dd></div><div><dt>청소 범위</dt><dd>홀 + 화장실</dd></div><div><dt>주방 청소</dt><dd>제외</dd></div><div><dt>청소 방식</dt><dd>STANDARD 기준으로 진행</dd></div><div><dt>제공 목적</dt><dd>정기 구독 계약 전 서비스 품질 확인</dd></div></dl>
       <a class="btn btn-lg" href="#contact">체험 신청하기<span class="btn-chev"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6l-6 6"/></svg></span></a>
     </div>
   </div>
 </section>
 
-<section class="section faq tex tex-wall" id="faq" aria-labelledby="faq-title">
+<section class="section faq tex tex-wall soft-top blend-bottom" id="faq" aria-labelledby="faq-title">
   <div class="wrap faq-grid">
     <div class="section-head"><h2 id="faq-title" class="section-title">자주 묻는 질문</h2></div>
     <div class="faq-list">

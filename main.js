@@ -57,7 +57,6 @@
     const show = (i) => {
       idx = (i + shots.length) % shots.length;
       shots.forEach((el, k) => el.classList.toggle("is-active", k === idx));
-      shots[idx].loading = "eager";
       if (now) now.textContent = String(idx + 1).padStart(2, "0");
       if (bar) { bar.classList.remove("is-run"); void bar.offsetWidth; if (!still) bar.classList.add("is-run"); }
     };
@@ -79,7 +78,7 @@
         e.target.classList.add("is-in");
         rvIO.unobserve(e.target);
       });
-    }, { threshold: 0.12, rootMargin: "0px 0px -6% 0px" });
+    }, { threshold: 0.01 });
     const mark = (sel, cls) => $$(sel).forEach((el) => { el.classList.add(cls); rvIO.observe(el); });
     mark(".section-head, .trial-copy > *, .plan-notes", "rv");
     mark(".fit-list, .plans, .faq-list, .contact-links", "rv-group");
