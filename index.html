@@ -506,6 +506,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .plan-unit, .plan-won { font-size: 1.0625rem; font-weight: 600; }
 .plan-won { margin-left: -4px; }
 .plan-vat { font-size: 0.8125rem; color: var(--text-3); margin-left: 4px; }
+.plan-vat.is-blank { display: none; }
+@media (min-width: 1200px) { .plan-vat.is-blank { display: block; } }
 .is-featured .plan-vat { color: var(--on-dark-2); }
 .plan-freq { margin-top: 10px; font-weight: 600; font-size: 0.9688rem; }
 .plan-freq::before { content: ""; display: inline-block; width: 14px; height: 1.5px; margin-right: 8px; vertical-align: middle; background: currentColor; opacity: 0.6; }
@@ -542,17 +544,23 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 @media (min-width: 640px) {
   .plans { grid-auto-columns: min(46vw, 380px); gap: 16px; }
 }
-@media (min-width: 1024px) {
+/* 네 칸이 한 줄에 들어가는 폭부터 표로 펼친다. 그보다 좁으면 옆으로 넘긴다 */
+@media (min-width: 1200px) {
   .plans-scroller {
     overflow: visible; -webkit-mask-image: none; mask-image: none;
     width: 100%; max-width: calc(var(--max) + var(--gutter) * 2); margin-inline: auto;
   }
-  .plans { grid-auto-flow: row; grid-template-columns: repeat(3, 1fr); width: auto; gap: 0; padding-block: 20px 0; align-items: stretch; }
-  .plan { padding: 40px 32px 32px; border-radius: 0; }
+  .plans { grid-auto-flow: row; grid-template-columns: repeat(4, 1fr); width: auto; gap: 0; padding-block: 20px 0; align-items: stretch; }
+  .plan { padding: 40px clamp(20px, 1.9vw, 30px) 32px; border-radius: 0; }
+  .plan-rows > div { grid-template-columns: 1fr; gap: 2px; }
+  .plan-rows dd { text-align: left; }
+  .plan-vat { flex-basis: 100%; margin: 4px 0 0; }
   .plan:first-child { border-radius: var(--r-box) 0 0 var(--r-box); border-right: 0; }
   .plan:last-child { border-radius: 0 var(--r-box) var(--r-box) 0; border-left: 0; }
   .plan.is-featured { margin-block: -20px; padding-block: 60px 52px; border-radius: var(--r-box); position: relative; z-index: 1; }
   .carousel-dots { display: none; }
+}
+@media (min-width: 1024px) {
   .plan-notes { grid-template-columns: 0.8fr 1.6fr; gap: 24px; }
 }
 
@@ -931,6 +939,18 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   <div class="plans-scroller" data-carousel>
     <ul class="plans" role="list" data-track>
       
+      <li class="plan" data-slide aria-label="DAILY CARE 요금제">
+        <div class="plan-top">
+          <h3 class="plan-name" lang="en">DAILY CARE</h3>
+          <span class="plan-badge">1회 이용</span>
+        </div>
+        <p class="plan-tagline">체험으로, 또 필요할 때마다 이용해요</p>
+        <p class="plan-price"><span class="plan-unit">1회</span> <strong>39,900</strong><span class="plan-won">원</span> <span class="plan-vat is-blank" aria-hidden="true">&nbsp;</span></p>
+        <p class="plan-freq">주 1회든 월 1회든 계속 이용 가능</p>
+        <dl class="plan-rows"><div><dt>서비스 형태</dt><dd>1회 방문 청소</dd></div><div><dt>청소 범위</dt><dd>홀 + 화장실</dd></div><div class="is-off"><dt>주방 청소</dt><dd>제외</dd></div><div><dt>청소 방식</dt><dd>STANDARD 기준</dd></div></dl>
+        
+        <a class="btn btn-line plan-cta" href="#contact">체험 신청하기<span class="visually-hidden"> (DAILY CARE)</span></a>
+      </li>
       <li class="plan" data-slide aria-label="BASIC 요금제">
         <div class="plan-top">
           <h3 class="plan-name" lang="en">BASIC</h3>
@@ -970,7 +990,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     </ul>
   </div>
   <div class="carousel-dots" data-dots role="group" aria-label="요금제 넘기기">
-    <button type="button" aria-label="BASIC 보기" data-dot="0"></button><button type="button" aria-label="STANDARD 보기" data-dot="1"></button><button type="button" aria-label="PREMIUM 보기" data-dot="2"></button>
+    <button type="button" aria-label="DAILY CARE 보기" data-dot="0"></button><button type="button" aria-label="BASIC 보기" data-dot="1"></button><button type="button" aria-label="STANDARD 보기" data-dot="2"></button><button type="button" aria-label="PREMIUM 보기" data-dot="3"></button>
   </div>
   <div class="wrap">
     <div class="plan-notes">

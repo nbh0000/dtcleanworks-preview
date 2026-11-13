@@ -111,7 +111,7 @@
     fit();
   }, { root: scroller, threshold: 0.6 });
   // 보이는 카드 높이에 맞춰 영역 높이를 줄인다 (넘기는 화면에서만)
-  const wide = matchMedia("(min-width: 1024px)");
+  const wide = matchMedia("(min-width: 1200px)");
   const fit = () => {
     if (wide.matches || !visible.size) { scroller.style.height = ""; scroller.classList.remove("is-fit"); return; }
     const cs = getComputedStyle(slides[0].parentElement);
