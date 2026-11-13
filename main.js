@@ -98,48 +98,75 @@
   }, { rootMargin: "-45% 0px -50% 0px" });
   links.forEach((a) => { const s = $(a.getAttribute("href")); s && navIO.observe(s); });
 
-  /* 요금제 카드 묶음: 겹쳐 둔 카드를 좌우로 넘기거나 눌러서 앞으로 꺼낸다 */
+  /* 요금제 원통: 카드 네 장이 원통 둘레에 서 있고, 넘기면 원통이 돈다. 끝에서 넘기면 처음으로 돌아온다 */
   const deck = $("[data-deck]");
   if (deck) {
     const slides = $$("[data-slide]", deck);
-    const dots = $$("[data-dot]", deck);
+    const tabs = $$("[data-dot]", deck);
+    const ring = $(".plans", deck);
+    const n = slides.length;
+    const theta = () => parseFloat(getComputedStyle(deck).getPropertyValue("--theta")) || 48;
+    const angles = slides.map(() => 0);
     let cur = Math.max(0, slides.findIndex((s) => s.dataset.start === "1"));
-    const go = (i) => {
-      const n = slides.length;
-      cur = ((i % n) + n) % n;
+    const place = (first) => {
+      const th = theta();
       slides.forEach((s, k) => {
-        // 자리: 0 앞, 1 오른쪽, -1 왼쪽, 그 밖은 뒤. 끝에서 넘기면 처음으로 돌아온다
+        // 자리: 0 앞, ±1 양옆, 그 밖은 원통 뒤쪽
         let o = (((k - cur) % n) + n) % n;
         if (o > n / 2) o -= n;
-        s.classList.toggle("is-back", Math.abs(o) > 1);
-        s.querySelectorAll("a").forEach((a) => { a.tabIndex = o === 0 ? 0 : -1; });
-        s.style.setProperty("--o", o);
-        s.style.setProperty("--a", Math.abs(o));
+        const target = Math.abs(o) > 1 ? 180 : o * th;
+        // 같은 방향으로 가장 가까운 길로 돌도록 360도 단위로 맞춘다
+        const a = first ? target : target + 360 * Math.round((angles[k] - target) / 360);
+        angles[k] = a;
+        s.style.setProperty("--ang", a + "deg");
         s.classList.toggle("is-active", o === 0);
-        s.classList.toggle("is-after", o > 0);
         s.setAttribute("aria-hidden", String(o !== 0));
+        s.querySelectorAll("a").forEach((el) => { el.tabIndex = o === 0 ? 0 : -1; });
       });
-      dots.forEach((d, k) => d.setAttribute("aria-current", String(k === cur)));
+      tabs.forEach((d, k) => d.setAttribute("aria-current", String(k === cur)));
     };
+    const go = (i) => { cur = ((i % n) + n) % n; place(false); };
     deck.classList.add("is-ready");
-    go(cur);
+    place(true);
+    requestAnimationFrame(() => requestAnimationFrame(() => deck.classList.add("is-live")));
     $("[data-deck-prev]", deck).addEventListener("click", () => go(cur - 1));
     $("[data-deck-next]", deck).addEventListener("click", () => go(cur + 1));
-    dots.forEach((d, i) => d.addEventListener("click", () => go(i)));
-    // 좌우로 넘기기: 가로로 40px 넘게 움직였을 때만 넘긴다 (세로 스크롤은 그대로)
-    const track = $(".plans", deck);
-    let sx = 0, sy = 0, down = false, swiped = false;
-    track.addEventListener("pointerdown", (e) => { down = true; swiped = false; sx = e.clientX; sy = e.clientY; });
-    track.addEventListener("pointerup", (e) => {
+    tabs.forEach((d, i) => d.addEventListener("click", () => go(i)));
+
+    // 손가락(마우스)을 따라 원통이 같이 돌고, 놓으면 가까운 카드로 부드럽게 멈춘다
+    let sx = 0, sy = 0, down = false, drag = false, moved = false;
+    const setDrag = (deg) => ring.style.setProperty("--drag", deg + "deg");
+    ring.addEventListener("pointerdown", (e) => {
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      down = true; drag = false; moved = false; sx = e.clientX; sy = e.clientY;
+    });
+    ring.addEventListener("pointermove", (e) => {
+      if (!down) return;
+      const dx = e.clientX - sx, dy = e.clientY - sy;
+      if (!drag) {
+        if (Math.abs(dx) < 8 || Math.abs(dx) < Math.abs(dy) * 1.2) return;
+        drag = true; moved = true;
+        ring.classList.add("is-drag");
+        try { ring.setPointerCapture(e.pointerId); } catch (_) {}
+      }
+      const w = slides[cur].offsetWidth || 1;
+      setDrag(Math.max(-1, Math.min(1, dx / w)) * theta());
+    });
+    const end = (e) => {
       if (!down) return;
       down = false;
-      const dx = e.clientX - sx, dy = e.clientY - sy;
-      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.2) { swiped = true; go(cur + (dx < 0 ? 1 : -1)); }
-    });
-    track.addEventListener("pointercancel", () => { down = false; });
-    // 뒤에 있는 카드를 누르면 앞으로 나온다
-    track.addEventListener("click", (e) => {
-      if (swiped) { e.preventDefault(); swiped = false; return; }
+      if (!drag) return;
+      drag = false;
+      ring.classList.remove("is-drag");
+      const dx = e.clientX - sx;
+      setDrag(0);
+      if (Math.abs(dx) > 36) go(cur + (dx < 0 ? 1 : -1));
+    };
+    ring.addEventListener("pointerup", end);
+    ring.addEventListener("pointercancel", end);
+    // 옆 카드를 누르면 그 카드가 앞으로 돈다
+    ring.addEventListener("click", (e) => {
+      if (moved) { e.preventDefault(); moved = false; return; }
       const s = e.target.closest("[data-slide]");
       if (s && !s.classList.contains("is-active")) { e.preventDefault(); go(slides.indexOf(s)); }
     });
@@ -147,6 +174,7 @@
       if (e.key === "ArrowLeft") go(cur - 1);
       if (e.key === "ArrowRight") go(cur + 1);
     });
+    addEventListener("resize", () => place(false), { passive: true });
   }
 
   /* 하단 고정 바: 히어로 버튼·상담 문의 영역·푸터가 보이면 숨김 (같은 버튼이 겹치지 않게) */

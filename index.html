@@ -463,15 +463,11 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 /* ── 요금제 ───────────────────────────────────────── */
 /* 카드를 한자리에 겹쳐 두고, 고른 카드만 앞에 펼친다. 뒤 카드는 이름·가격만 보인다 */
-.deck { margin-top: clamp(28px, 4vw, 48px); }
-.plans {
-  --w: min(80vw, 400px); --step: 9%;
-  display: grid; justify-content: center; align-items: stretch;
-  padding: 12px 0 28px; overflow: hidden;
-  touch-action: pan-y; user-select: none; -webkit-user-select: none;
-}
+/* 원통: --r 반지름, --theta 옆 카드가 서 있는 각도. 앞 카드는 제 크기 그대로 보인다 */
+.deck { --w: min(80vw, 400px); --r: 380px; --theta: 50; position: relative; margin-top: clamp(20px, 3vw, 36px); }
+.deck-stage { perspective: 1500px; overflow: hidden; padding: 14px 0 34px; }
+.plans { display: grid; justify-content: center; align-items: stretch; }
 .plan {
-  --o: 0; --a: 0;
   grid-area: 1 / 1; width: var(--w);
   display: flex; flex-direction: column;
   padding: 28px 24px 24px;
@@ -479,28 +475,51 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   background: var(--card); box-shadow: var(--shadow);
 }
 .plan.is-featured { background: var(--ink); border-color: var(--ink); border-top: 3px solid var(--accent); color: var(--on-dark); }
+.deck.is-ready .plans {
+  --drag: 0deg;
+  transform-style: preserve-3d;
+  transform: translateZ(calc(var(--r) * -1)) rotateY(var(--drag));
+  touch-action: pan-y; user-select: none; -webkit-user-select: none;
+}
 .deck.is-ready .plan {
-  z-index: calc(10 - var(--a));
-  transform: translateX(calc(var(--o) * var(--step)));
-  transition: transform 0.5s var(--ease-out), filter 0.3s;
+  --ang: 0deg;
+  transform: rotateY(var(--ang)) translateZ(var(--r));
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
   cursor: pointer;
 }
+.deck.is-live .plans { transition: transform 0.75s cubic-bezier(0.22, 0.72, 0.18, 1); }
+.deck.is-live .plan { transition: transform 0.75s cubic-bezier(0.22, 0.72, 0.18, 1), filter 0.4s; }
+.deck.is-live .plans.is-drag { transition: none; }
 .deck.is-ready .plan.is-active { cursor: default; }
-.deck.is-ready .plan:not(.is-active) { filter: brightness(0.94); }
-/* 맨 뒤 카드는 앞 카드 바로 뒤에 숨는다 */
-.deck.is-ready .plan.is-back { transform: none; z-index: 1; }
-.deck.is-ready .plan:not(.is-active):active { filter: brightness(0.88); }
+.deck.is-ready .plan:not(.is-active) { filter: brightness(0.93); }
+@media (prefers-reduced-motion: reduce) { .deck.is-live .plans, .deck.is-live .plan { transition: none; } }
+/* 스크립트가 없으면 카드를 세로로 그냥 나열한다 */
+.deck:not(.is-ready) .plan { grid-area: auto; margin-bottom: 12px; }
+.deck:not(.is-ready) .deck-tabs, .deck:not(.is-ready) .deck-arrow { display: none; }
+/* 요금제 이름 탭: 지금 앞에 있는 요금제를 알려 주고, 누르면 그 카드로 돈다 */
+.deck-tabs { display: flex; justify-content: center; gap: clamp(2px, 1.5vw, 14px); padding-inline: 8px; }
+.deck-tabs button {
+  position: relative; min-height: 44px; padding: 0 clamp(6px, 1.6vw, 14px);
+  font-family: "Archivo", sans-serif; font-stretch: 112%; font-weight: 700; letter-spacing: 0.03em;
+  font-size: clamp(0.6875rem, 0.58rem + 0.55vw, 0.875rem); white-space: nowrap; color: var(--text-3);
+  transition: color 0.2s;
+}
+.deck-tabs button::after {
+  content: ""; position: absolute; left: clamp(6px, 1.6vw, 14px); right: clamp(6px, 1.6vw, 14px); bottom: 6px; height: 2px;
+  background: var(--blue); transform: scaleX(0); transition: transform 0.35s var(--ease-out);
+}
+.deck-tabs button[aria-current="true"] { color: var(--ink); }
+.deck-tabs button[aria-current="true"]::after { transform: scaleX(1); }
+.deck-tabs button:active { color: var(--blue); }
+@media (hover: hover) and (pointer: fine) { .deck-tabs button:hover { color: var(--ink); } }
+.plan-desc { margin-bottom: 4px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 0.9375rem; line-height: 1.65; color: var(--text-2); }
+.plan-desc + .plan-rows { margin-top: 12px; }
 .plan-body { flex: 1; display: flex; flex-direction: column; }
-/* 카드 높이를 똑같이 맞추고, 항목이 적은 카드는 줄 간격을 넓혀 표처럼 채운다 */
 .plan-body > .plan-rows { flex: 1; gap: 0; padding-top: 0; grid-auto-rows: minmax(min-content, 1fr); }
 .plan-body > .plan-rows > div { align-items: center; padding-block: 9px; border-bottom: 1px solid var(--line); }
 .is-featured .plan-body > .plan-rows > div { border-color: rgb(255 255 255 / 0.14); }
 .plan-body > .plan-rows > div:last-child { border-bottom: 0; }
 .plan-body > .plan-rows:has(+ .plan-extra) { flex: 0 0 auto; }
-@media (prefers-reduced-motion: reduce) { .deck.is-ready .plan { transition: none; } }
-/* 스크립트가 없으면 카드를 세로로 그냥 나열한다 */
-.deck:not(.is-ready) .plan { grid-area: auto; margin-bottom: 12px; }
-.deck:not(.is-ready) .deck-nav { display: none; }
 .plan-top { display: flex; align-items: center; gap: 10px; }
 .plan-name { font-size: 1rem; font-weight: 800; letter-spacing: 0.06em; color: var(--blue); }
 .is-featured .plan-name { color: var(--accent); }
@@ -531,25 +550,24 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .plan-extra .plan-rows > div { font-size: 0.875rem; }
 .plan-cta { margin-top: auto; width: 100%; }
 .plan-body > :nth-last-child(2) { margin-bottom: 22px; }
-.deck-nav { display: flex; align-items: center; justify-content: center; gap: 6px; }
-.deck-nav > button {
-  display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%;
-  border: 1px solid rgb(14 24 38 / 0.3); color: var(--ink); background: rgb(255 255 255 / 0.6);
-  transition: background-color 0.15s, border-color 0.15s, color 0.15s, opacity 0.15s;
+/* 넘기는 화살표는 앞 카드의 양옆 모서리에 걸쳐 놓는다 */
+.deck-arrow {
+  position: absolute; z-index: 20; top: calc(50% + 12px); translate: -50% -50%;
+  display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%;
+  border: 1px solid rgb(14 24 38 / 0.14); background: #fff; color: var(--ink);
+  box-shadow: 0 8px 20px -8px rgb(14 24 38 / 0.45);
+  transition: background-color 0.15s, color 0.15s, transform 0.16s var(--ease-out);
 }
-.deck-nav > button .icon { width: 18px; height: 18px; }
-.deck-nav > button:disabled { opacity: 0.35; }
-.deck-nav > button:not(:disabled):active { background: var(--ink); border-color: var(--ink); color: #fff; }
-@media (hover: hover) and (pointer: fine) { .deck-nav > button:not(:disabled):hover { background: var(--ink); border-color: var(--ink); color: #fff; } }
-.carousel-dots { display: flex; justify-content: center; gap: 0; }
-.carousel-dots button { width: 44px; height: 44px; display: grid; place-items: center; }
-.carousel-dots button::before {
-  content: ""; width: 8px; height: 2px; background: #a8b1bd;
-  transition: width 0.3s var(--ease-out), background-color 0.3s;
-}
-.carousel-dots button[aria-current="true"]::before { width: 24px; background: var(--blue); }
-@media (min-width: 640px) { .plans { --w: 400px; --step: 40%; } .plan { padding: 32px 28px 28px; } }
-@media (min-width: 1024px) { .plans { --w: 420px; --step: 72%; } }
+/* 카드 글자를 가리지 않게 카드 바로 바깥에 둔다. 누르는 영역은 44px 이상 */
+.deck-arrow.is-prev { left: calc(50% - var(--w) / 2 - var(--arrow-gap, 19px)); }
+.deck-arrow.is-next { left: calc(50% + var(--w) / 2 + var(--arrow-gap, 19px)); }
+.deck-arrow::before { content: ""; position: absolute; inset: -6px; }
+.deck-arrow .icon { width: 20px; height: 20px; stroke-width: 2.2; }
+.deck-arrow:active { background: var(--accent); transform: scale(0.94); }
+@media (hover: hover) and (pointer: fine) { .deck-arrow:hover { background: var(--accent); } }
+.deck:not(.is-ready) .deck-arrow { display: none; }
+@media (min-width: 640px) { .deck { --w: 400px; --r: 470px; --theta: 48; --arrow-gap: 34px; } .deck-arrow { width: 48px; height: 48px; } .plan { padding: 32px 28px 28px; } }
+@media (min-width: 1024px) { .deck { --w: 420px; --r: 520px; --theta: 46; } .deck-stage { perspective: 1900px; } }
 
 .plan-notes { margin-top: clamp(28px, 4vw, 48px); padding-top: 24px; border-top: 1px solid var(--line-strong); display: grid; gap: 16px; }
 .plan-notes h3 { font-size: 1.0625rem; font-weight: 700; letter-spacing: -0.02em; }
@@ -804,7 +822,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 }
 
 @media print {
-  .site-header, .mobile-bar, .drawer, .carousel-dots, .quick, .hero-pager { display: none !important; }
+  .site-header, .mobile-bar, .drawer, .deck-tabs, .deck-arrow, .quick, .hero-pager { display: none !important; }
 }
 </style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"LocalBusiness","name":"DT클린웍스","description":"서울 식당 홀 중심 정기 마감청소. 영업 종료 후 협의한 시간에 방문하고, 정해진 기준으로 관리합니다. BASIC 월 24만 원부터.","url":"https://dt-cleanworks.vercel.app","areaServed":"서울","image":"https://dt-cleanworks.vercel.app/assets/og.png"}</script>
@@ -935,6 +953,10 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     <div class="section-head is-center"><h2 id="pricing-title" class="section-title"><span class="t-light">월 정액 요금제,</span> <br>세 가지 중에 고르세요</h2><p class="section-lead">매장 운영 환경과 청소 빈도에 맞춰 고르시면 돼요.</p></div>
   </div>
   <div class="deck" data-deck role="group" aria-roledescription="carousel" aria-label="요금제">
+    <div class="deck-tabs" role="group" aria-label="요금제 고르기">
+      <button type="button" lang="en" data-dot="0">DAILY CARE</button><button type="button" lang="en" data-dot="1">BASIC</button><button type="button" lang="en" data-dot="2">STANDARD</button><button type="button" lang="en" data-dot="3">PREMIUM</button>
+    </div>
+    <div class="deck-stage">
     <ul class="plans" role="list">
       
       <li class="plan" data-slide data-start="0" style="--o:0" aria-label="DAILY CARE 요금제">
@@ -943,11 +965,12 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
             <h3 class="plan-name" lang="en">DAILY CARE</h3>
             <span class="plan-badge">1회 이용</span>
           </div>
-          <p class="plan-tagline">체험으로, 또 필요할 때마다 이용해요</p>
+          <p class="plan-tagline">자유롭게 이용하는 마감청소 서비스</p>
           <p class="plan-price"><span class="plan-unit">1회</span> <strong>39,900</strong><span class="plan-won">원</span></p>
-          <p class="plan-freq">주 1회든 월 1회든 계속 이용 가능</p>
+          <p class="plan-freq">필요한 날에 원하는 횟수만큼</p>
         </div>
         <div class="plan-body">
+          <p class="plan-desc">정기 구독 계약 없이도 필요한 날에 원하는 횟수만큼 이용할 수 있는 서비스입니다.<br>매장 상황과 일정에 맞춰 유연하게 신청하고, DT클린웍스의 전문적인 마감청소 서비스를 경험해 보세요.</p>
           <dl class="plan-rows"><div><dt>서비스 형태</dt><dd>1회 방문 청소</dd></div><div><dt>청소 범위</dt><dd>홀 + 화장실</dd></div><div class="is-off"><dt>주방 청소</dt><dd>제외</dd></div><div><dt>청소 방식</dt><dd>STANDARD 기준</dd></div></dl>
           
           <a class="btn  plan-cta" href="#contact">체험 신청하기<span class="visually-hidden"> (DAILY CARE)</span></a>
@@ -964,6 +987,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
           <p class="plan-freq">주 2회</p>
         </div>
         <div class="plan-body">
+          
           <dl class="plan-rows"><div><dt>홀 클리닝</dt><dd>테이블·의자·바닥</dd></div><div class="is-off"><dt>화장실 케어</dt><dd>미포함</dd></div><div><dt>매장 환경 관리</dt><dd>쓰레기 수거·주변 정돈</dd></div><div><dt>마감 점검</dt><dd>기본 청결 확인</dd></div></dl>
           
           <a class="btn  plan-cta" href="#contact">상담하기<span class="visually-hidden"> (BASIC)</span></a>
@@ -980,6 +1004,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
           <p class="plan-freq">주 4회</p>
         </div>
         <div class="plan-body">
+          
           <dl class="plan-rows"><div><dt>홀 클리닝</dt><dd>테이블·의자·바닥·출입구</dd></div><div><dt>화장실 케어</dt><dd>변기·세면대·거울·바닥</dd></div><div><dt>매장 환경 관리</dt><dd>쓰레기 수거·주변 정돈</dd></div><div><dt>마감 점검</dt><dd>최종 확인</dd></div></dl>
           
           <a class="btn btn-on-dark plan-cta" href="#contact">상담하기<span class="visually-hidden"> (STANDARD)</span></a>
@@ -996,19 +1021,19 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
           <p class="plan-freq">매장 영업일 매일</p>
         </div>
         <div class="plan-body">
+          
           <dl class="plan-rows"><div><dt>홀 클리닝</dt><dd>STANDARD 전체</dd></div><div><dt>화장실 케어</dt><dd>포함</dd></div><div><dt>매장 환경 관리</dt><dd>포함</dd></div><div><dt>마감 점검</dt><dd>포함</dd></div></dl>
           <div class="plan-extra"><p class="plan-extra-title">PREMIUM 전용</p><dl class="plan-rows"><div><dt>SPECIAL CARE</dt><dd>청결 사각지대 + 해충 관리</dd></div><div><dt>위생 케어</dt><dd>미세분무 관리</dd></div><div><dt>품질 관리</dt><dd>전용 체크리스트·위생 상태 기록</dd></div><div><dt>작업 보고</dt><dd>매회 전후 사진</dd></div><div><dt>월간 리포트</dt><dd>관리 현황·개선 사항</dd></div></dl></div>
           <a class="btn  plan-cta" href="#contact">상담하기<span class="visually-hidden"> (PREMIUM)</span></a>
         </div>
       </li>
     </ul>
-    <div class="deck-nav" data-deck-nav>
-      <button type="button" aria-label="이전 요금제" data-deck-prev><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6l6 6"/></svg></button>
-      <div class="carousel-dots" role="group" aria-label="요금제 고르기">
-        <button type="button" aria-label="DAILY CARE 보기" data-dot="0"></button><button type="button" aria-label="BASIC 보기" data-dot="1"></button><button type="button" aria-label="STANDARD 보기" data-dot="2"></button><button type="button" aria-label="PREMIUM 보기" data-dot="3"></button>
-      </div>
-      <button type="button" aria-label="다음 요금제" data-deck-next><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6l-6 6"/></svg></button>
+    <button type="button" class="deck-arrow is-prev" aria-label="이전 요금제" data-deck-prev><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6l6 6"/></svg></button>
+    <button type="button" class="deck-arrow is-next" aria-label="다음 요금제" data-deck-next><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6l-6 6"/></svg></button>
     </div>
+  </div>
+    </div>
+  </div>
   </div>
   <div class="wrap">
     <div class="plan-notes">
