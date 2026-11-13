@@ -108,7 +108,19 @@
   const slideIO = new IntersectionObserver((entries) => {
     entries.forEach((e) => (e.isIntersecting ? visible.add(e.target) : visible.delete(e.target)));
     if (visible.size) setActive(Math.min(...[...visible].map((el) => slides.indexOf(el))));
+    fit();
   }, { root: scroller, threshold: 0.6 });
+  // 보이는 카드 높이에 맞춰 영역 높이를 줄인다 (넘기는 화면에서만)
+  const wide = matchMedia("(min-width: 1024px)");
+  const fit = () => {
+    if (wide.matches || !visible.size) { scroller.style.height = ""; scroller.classList.remove("is-fit"); return; }
+    const cs = getComputedStyle(slides[0].parentElement);
+    const h = Math.max(...[...visible].map((el) => el.offsetHeight)) + parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+    scroller.classList.add("is-fit");
+    scroller.style.height = Math.ceil(h) + "px";
+  };
+  wide.addEventListener("change", fit);
+  if ("ResizeObserver" in window) { const ro = new ResizeObserver(fit); slides.forEach((s) => ro.observe(s)); }
   slides.forEach((s) => slideIO.observe(s));
   dots.forEach((d, i) =>
     d.addEventListener("click", () => {

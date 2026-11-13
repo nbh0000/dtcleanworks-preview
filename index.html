@@ -234,7 +234,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   box-shadow: 0 1px 0 var(--line);
 }
 .header-inner { height: var(--header-h); display: flex; align-items: center; gap: 28px; }
-.logo { font-weight: 800; font-size: 1.0625rem; letter-spacing: 0.02em; white-space: nowrap; }
+.logo { display: inline-flex; align-items: center; gap: 0.3em; min-height: 44px; font-weight: 800; font-size: 1.0625rem; letter-spacing: 0.02em; white-space: nowrap; }
 .logo-mark { color: var(--accent); transition: color 0.25s; }
 .is-scrolled .logo-mark, .drawer .logo-mark { color: var(--blue); }
 .nav-desktop { display: none; margin-left: auto; gap: 6px; }
@@ -476,6 +476,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   mask-image: linear-gradient(90deg, transparent, #000 var(--gutter), #000 calc(100% - var(--gutter)), transparent);
 }
 .plans-scroller::-webkit-scrollbar { display: none; }
+/* 넘기는 카드마다 높이가 달라서, 보이는 카드 높이에 맞춰 영역을 줄인다 (main.js) */
+.plans-scroller.is-fit { overflow-y: hidden; transition: height 0.35s var(--ease-out); }
+@media (prefers-reduced-motion: reduce) { .plans-scroller.is-fit { transition: none; } }
 .plans {
   display: grid; grid-auto-flow: column; grid-auto-columns: min(86vw, 360px); gap: 12px;
   padding: 8px var(--gutter) 24px; width: max-content; min-width: 100%; align-items: start;
@@ -520,7 +523,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .plan-rows + .plan-cta, .plan-extra + .plan-cta { margin-top: 28px; }
 .plan > .plan-rows { margin-bottom: auto; }
 .carousel-dots { display: flex; justify-content: center; gap: 2px; }
-.carousel-dots button { width: 32px; height: 28px; display: grid; place-items: center; }
+.carousel-dots button { width: 44px; height: 44px; display: grid; place-items: center; }
 .carousel-dots button::before {
   content: ""; width: 8px; height: 2px; background: #a8b1bd;
   transition: width 0.3s var(--ease-out), background-color 0.3s;
@@ -847,7 +850,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   <div class="wrap hero-inner">
     <div class="hero-copy">
       <p class="hero-slogan" lang="en">Beyond Clean, Beyond Standards.</p>
-      <h1 id="hero-title" class="hero-title"><span class="t-light">청결을 넘어,</span><br>기준을 만듭니다.</h1>
+      <h1 id="hero-title" class="hero-title"><span class="t-light">청결을 넘어,</span> <br>기준을 만듭니다.</h1>
       <p class="hero-sub">식당 홀 정기 마감청소, DT클린웍스예요.<br>영업 끝난 뒤, 청소는 저희가 할게요.</p>
       <div class="hero-ctas">
         <a class="btn btn-lg btn-accent" href="#trial">체험 신청<span class="btn-chev"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6l-6 6"/></svg></span></a>
@@ -866,7 +869,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 <section class="section fit tex tex-floor blend-top soft-bottom" aria-labelledby="fit-title">
   <div class="wrap">
-    <div class="section-head is-center"><h2 id="fit-title" class="section-title"><span class="t-light">이런 점주님께</span><br>잘 맞아요</h2><p class="section-lead">마감 청소에 드는 시간을 줄이고, 영업에 더 집중하고 싶은 점주님을 위한 서비스예요.</p></div>
+    <div class="section-head is-center"><h2 id="fit-title" class="section-title"><span class="t-light">이런 점주님께</span> <br>잘 맞아요</h2><p class="section-lead">마감 청소에 드는 시간을 줄이고, 영업에 더 집중하고 싶은 점주님을 위한 서비스예요.</p></div>
     <ul class="fit-list" role="list">
       <li><span class="fit-mark"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"/><path d="M17 4a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2"/><path d="M19 11h2m-1 -1v2"/></svg></span><div class="fit-text"><h3>마감 후 청소가 힘든 점주님</h3><p>영업을 마치고 나면 청소까지 할 힘이 남지 않아요.</p></div></li><li><span class="fit-mark"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/><path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0 -3 -3.85"/></svg></span><div class="fit-text"><h3>직원 청소 품질이 들쑥날쑥한 매장</h3><p>누가 마감하느냐에 따라 매장 상태가 달라져요.</p></div></li><li><span class="fit-mark"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M12 12l3 2"/><path d="M12 7v5"/></svg></span><div class="fit-text"><h3>퇴근이 자꾸 늦어지는 점주님</h3><p>청소 때문에 문 닫는 시간이 매일 밀려요.</p></div></li><li><span class="fit-mark"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2"/><path d="M14 8h-2.5a1.5 1.5 0 0 0 0 3h1a1.5 1.5 0 0 1 0 3h-2.5m2 0v1.5m0 -9v1.5"/></svg></span><div class="fit-text"><h3>청소 비용을 미리 알고 싶은 매장</h3><p>매달 얼마가 드는지 정해져 있으면 좋겠어요.</p></div></li>
     </ul>
@@ -875,7 +878,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 <section class="section service tex tex-wall soft-top soft-bottom" id="service" aria-labelledby="service-title">
   <div class="wrap">
-    <div class="section-head is-center"><h2 id="service-title" class="section-title"><span class="t-light">홀부터 마감 점검까지</span><br>맡겨 주세요</h2><p class="section-lead">요금제에 따라 관리 범위가 달라져요.</p></div>
+    <div class="section-head is-center"><h2 id="service-title" class="section-title"><span class="t-light">홀부터 마감 점검까지</span> <br>맡겨 주세요</h2><p class="section-lead">요금제에 따라 관리 범위가 달라져요.</p></div>
     <ul class="svc-grid" role="list">
       <li class="svc svc-wide">
         <div class="svc-photo"><img src="assets/img/svc-hall-1600.webp" srcset="assets/img/svc-hall-800.webp 800w, assets/img/svc-hall-1600.webp 1600w" sizes="(min-width: 1024px) 46vw, 92vw" alt="식당 테이블을 닦는 모습" width="1600" height="1200" fetchpriority="low"></div>
@@ -923,7 +926,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 <section class="section pricing tex tex-floor tex-flip soft-top blend-bottom" id="pricing" aria-labelledby="pricing-title">
   <div class="wrap">
-    <div class="section-head is-center"><h2 id="pricing-title" class="section-title"><span class="t-light">월 정액 요금제,</span><br>세 가지 중에 고르세요</h2><p class="section-lead">매장 운영 환경과 청소 빈도에 맞춰 고르시면 돼요.</p></div>
+    <div class="section-head is-center"><h2 id="pricing-title" class="section-title"><span class="t-light">월 정액 요금제,</span> <br>세 가지 중에 고르세요</h2><p class="section-lead">매장 운영 환경과 청소 빈도에 맞춰 고르시면 돼요.</p></div>
   </div>
   <div class="plans-scroller" data-carousel>
     <ul class="plans" role="list" data-track>
@@ -979,7 +982,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 <section class="section process tex tex-night" aria-labelledby="process-title">
   <div class="wrap">
-    <div class="section-head"><h2 id="process-title" class="section-title"><span class="t-light">상담부터 관리까지</span><br>이렇게 진행돼요</h2></div>
+    <div class="section-head"><h2 id="process-title" class="section-title"><span class="t-light">상담부터 관리까지</span> <br>이렇게 진행돼요</h2></div>
     <ol class="steps" role="list">
       <li><span class="step-no" aria-hidden="true">1</span><h3>상담</h3><p>전화나 카카오톡으로 편하게 문의해 주세요.</p></li><li><span class="step-no" aria-hidden="true">2</span><h3>매장 확인·시간 협의</h3><p>매장을 확인하고 방문 시간을 함께 정해요.</p></li><li><span class="step-no" aria-hidden="true">3</span><h3>DAILY CARE 체험</h3><p>정기 계약 전에 서비스를 먼저 경험해 보세요.</p></li><li><span class="step-no" aria-hidden="true">4</span><h3>정기 계약</h3><p>매장에 맞는 요금제로 계약해요.</p></li><li><span class="step-no" aria-hidden="true">5</span><h3>관리·보고</h3><p>정해진 관리 기준에 따라 매장을 관리해요.</p></li>
     </ol>
@@ -991,7 +994,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     <div class="trial-photo"><img src="assets/img/trial-table-1600.webp" srcset="assets/img/trial-table-800.webp 800w, assets/img/trial-table-1600.webp 1600w" sizes="(min-width: 900px) 52vw, 92vw" alt="아침 햇살이 드는 깨끗한 식당 테이블" width="1600" height="1067" fetchpriority="low"></div>
     <div class="trial-copy">
       <p class="trial-name" lang="en">DAILY CARE</p>
-      <h2 id="trial-title" class="section-title"><span class="t-light">계약 전에</span><br>먼저 경험해 보세요</h2>
+      <h2 id="trial-title" class="section-title"><span class="t-light">계약 전에</span> <br>먼저 경험해 보세요</h2>
       <p class="section-lead">실제 청소 품질과 관리 방식을 확인한 뒤에 정기 계약을 결정하시면 돼요.</p>
       <p class="trial-price"><strong>39,900</strong><span class="plan-won">원</span></p>
       <dl class="trial-facts"><div><dt>서비스 형태</dt><dd>1회 방문 청소</dd></div><div><dt>청소 범위</dt><dd>홀 + 화장실</dd></div><div><dt>주방 청소</dt><dd>제외</dd></div><div><dt>청소 방식</dt><dd>STANDARD 기준으로 진행</dd></div><div><dt>제공 목적</dt><dd>정기 구독 계약 전 서비스 품질 확인</dd></div></dl>
@@ -1033,7 +1036,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 <div class="closing">
 <section class="section contact" id="contact" aria-labelledby="contact-title" data-contact>
   <div class="wrap contact-grid">
-    <div class="section-head"><h2 id="contact-title" class="section-title"><span class="t-light">우리 매장에 맞는지</span><br>편하게 물어보세요</h2><p class="section-lead">전화나 카카오톡으로 상담해 드려요.</p></div>
+    <div class="section-head"><h2 id="contact-title" class="section-title"><span class="t-light">우리 매장에 맞는지</span> <br>편하게 물어보세요</h2><p class="section-lead">전화나 카카오톡으로 상담해 드려요.</p></div>
     <div class="contact-links">
       
       <a class="contact-link" href="#contact">
