@@ -105,9 +105,14 @@
     const dots = $$("[data-dot]", deck);
     let cur = Math.max(0, slides.findIndex((s) => s.dataset.start === "1"));
     const go = (i) => {
-      cur = Math.max(0, Math.min(slides.length - 1, i));
+      const n = slides.length;
+      cur = ((i % n) + n) % n;
       slides.forEach((s, k) => {
-        const o = k - cur;
+        // 자리: 0 앞, 1 오른쪽, -1 왼쪽, 그 밖은 뒤. 끝에서 넘기면 처음으로 돌아온다
+        let o = (((k - cur) % n) + n) % n;
+        if (o > n / 2) o -= n;
+        s.classList.toggle("is-back", Math.abs(o) > 1);
+        s.querySelectorAll("a").forEach((a) => { a.tabIndex = o === 0 ? 0 : -1; });
         s.style.setProperty("--o", o);
         s.style.setProperty("--a", Math.abs(o));
         s.classList.toggle("is-active", o === 0);
@@ -115,8 +120,6 @@
         s.setAttribute("aria-hidden", String(o !== 0));
       });
       dots.forEach((d, k) => d.setAttribute("aria-current", String(k === cur)));
-      $("[data-deck-prev]", deck).disabled = cur === 0;
-      $("[data-deck-next]", deck).disabled = cur === slides.length - 1;
     };
     deck.classList.add("is-ready");
     go(cur);

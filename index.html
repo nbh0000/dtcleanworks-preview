@@ -466,7 +466,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .deck { margin-top: clamp(28px, 4vw, 48px); }
 .plans {
   --w: min(80vw, 400px); --step: 9%;
-  display: grid; justify-content: center; align-items: start;
+  display: grid; justify-content: center; align-items: stretch;
   padding: 12px 0 28px; overflow: hidden;
   touch-action: pan-y; user-select: none; -webkit-user-select: none;
 }
@@ -481,17 +481,22 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .plan.is-featured { background: var(--ink); border-color: var(--ink); border-top: 3px solid var(--accent); color: var(--on-dark); }
 .deck.is-ready .plan {
   z-index: calc(10 - var(--a));
-  transform: translateX(calc(var(--o) * var(--step))) scale(calc(1 - var(--a) * 0.07));
-  transform-origin: 50% 0;
-  transition: transform 0.45s var(--ease-out), filter 0.3s;
+  transform: translateX(calc(var(--o) * var(--step)));
+  transition: transform 0.5s var(--ease-out), filter 0.3s;
   cursor: pointer;
 }
 .deck.is-ready .plan.is-active { cursor: default; }
 .deck.is-ready .plan:not(.is-active) { filter: brightness(0.94); }
-.deck.is-ready .plan:not(.is-active) .plan-body { display: none; }
+/* 맨 뒤 카드는 앞 카드 바로 뒤에 숨는다 */
+.deck.is-ready .plan.is-back { transform: none; z-index: 1; }
 .deck.is-ready .plan:not(.is-active):active { filter: brightness(0.88); }
-.plan.is-after .plan-head { text-align: right; }
-.plan.is-after .plan-top, .plan.is-after .plan-price { justify-content: flex-end; }
+.plan-body { flex: 1; display: flex; flex-direction: column; }
+/* 카드 높이를 똑같이 맞추고, 항목이 적은 카드는 줄 간격을 넓혀 표처럼 채운다 */
+.plan-body > .plan-rows { flex: 1; gap: 0; padding-top: 0; grid-auto-rows: minmax(min-content, 1fr); }
+.plan-body > .plan-rows > div { align-items: center; padding-block: 9px; border-bottom: 1px solid var(--line); }
+.is-featured .plan-body > .plan-rows > div { border-color: rgb(255 255 255 / 0.14); }
+.plan-body > .plan-rows > div:last-child { border-bottom: 0; }
+.plan-body > .plan-rows:has(+ .plan-extra) { flex: 0 0 auto; }
 @media (prefers-reduced-motion: reduce) { .deck.is-ready .plan { transition: none; } }
 /* 스크립트가 없으면 카드를 세로로 그냥 나열한다 */
 .deck:not(.is-ready) .plan { grid-area: auto; margin-bottom: 12px; }
@@ -524,7 +529,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .plan-extra-title { font-size: 0.8438rem; font-weight: 700; color: var(--blue); letter-spacing: 0.02em; }
 .plan-extra .plan-rows { gap: 8px; margin-top: 10px; padding-top: 0; border: 0; }
 .plan-extra .plan-rows > div { font-size: 0.875rem; }
-.plan-cta { margin-top: 22px; width: 100%; }
+.plan-cta { margin-top: auto; width: 100%; }
+.plan-body > :nth-last-child(2) { margin-bottom: 22px; }
 .deck-nav { display: flex; align-items: center; justify-content: center; gap: 6px; }
 .deck-nav > button {
   display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%;
@@ -542,8 +548,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   transition: width 0.3s var(--ease-out), background-color 0.3s;
 }
 .carousel-dots button[aria-current="true"]::before { width: 24px; background: var(--blue); }
-@media (min-width: 640px) { .plans { --w: 400px; --step: 34%; } .plan { padding: 32px 28px 28px; } }
-@media (min-width: 1024px) { .plans { --w: 420px; --step: 56%; } }
+@media (min-width: 640px) { .plans { --w: 400px; --step: 40%; } .plan { padding: 32px 28px 28px; } }
+@media (min-width: 1024px) { .plans { --w: 420px; --step: 72%; } }
 
 .plan-notes { margin-top: clamp(28px, 4vw, 48px); padding-top: 24px; border-top: 1px solid var(--line-strong); display: grid; gap: 16px; }
 .plan-notes h3 { font-size: 1.0625rem; font-weight: 700; letter-spacing: -0.02em; }
